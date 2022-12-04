@@ -76,8 +76,8 @@
       ansible.builtin.command: gitlab-runner register --url https://gitlab.com/ --registration-token {{gitlab_runner_token}} --name {{gitlab_runner_name}} --run-untagged --executor custom -n
     - name: Copy config.toml
       ansible.builtin.copy:
-        src: config.toml
-        dest: /etc/gitlab-runner/config.toml
+        src: Apply config.toml template
+        dest: /etc/gitlab-runner/config.toml.j2
         mode: 0777
     - name: Apply fargate.toml template
       ansible.builtin.template:
