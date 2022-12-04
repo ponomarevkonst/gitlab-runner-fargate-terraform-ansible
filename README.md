@@ -1,4 +1,4 @@
-# Autoscaling GitLab CI on AWS Fargate provisioned by Terraform and Ansible
+# [WIP] Autoscaling GitLab CI on AWS Fargate provisioned by Terraform and Ansible
 This repository contains the code to deploy a GitLab CI runner on AWS Fargate using Terraform and Ansible. The code is based on [this](https://docs.gitlab.com/runner/configuration/runner_autoscale_aws_fargate/) tutorial. Terraform is used to deploy the infrastructure and Ansible is used to configure the GitLab CI runner. Terraform provisions the following resources:
 * VPC with Subnets and Route Tables
 * Security Group to allow ssh access to VPC
