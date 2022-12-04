@@ -1,0 +1,23 @@
+concurrent = 1
+check_interval = 0
+
+[session_server]
+  session_timeout = 1800
+
+[[runners]]
+  name = {{ gitlab_runner_name }} 
+  url = "https://gitlab.com/"
+  token = "__REDACTED__"
+  executor = "custom"
+  builds_dir = "/opt/gitlab-runner/builds"
+  cache_dir = "/opt/gitlab-runner/cache"
+  [runners.custom]
+    volumes = ["/cache", "/path/to-ca-cert-dir/ca.crt:/etc/gitlab-runner/certs/ca.crt:ro"]
+    config_exec = "/opt/gitlab-runner/fargate"
+    config_args = ["--config", "/etc/gitlab-runner/fargate.toml", "custom", "config"]
+    prepare_exec = "/opt/gitlab-runner/fargate"
+    prepare_args = ["--config", "/etc/gitlab-runner/fargate.toml", "custom", "prepare"]
+    run_exec = "/opt/gitlab-runner/fargate"
+    run_args = ["--config", "/etc/gitlab-runner/fargate.toml", "custom", "run"]
+    cleanup_exec = "/opt/gitlab-runner/fargate"
+    cleanup_args = ["--config", "/etc/gitlab-runner/fargate.toml", "custom", "cleanup"]

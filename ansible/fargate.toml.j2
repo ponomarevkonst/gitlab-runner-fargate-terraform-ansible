@@ -1,0 +1,17 @@
+LogLevel = "info"
+LogFormat = "text"
+
+[Fargate]
+  Cluster = {{ cluster_name }} 
+  Region = {{ region }}
+  Subnet = {{ subnet_id }}
+  SecurityGroup = {{ security_group_id }}
+  TaskDefinition = {{ task_definition_name }}:1
+  EnablePublicIP = true
+
+[TaskMetadata]
+  Directory = "/opt/gitlab-runner/metadata"
+
+[SSH]
+  Username = "root"
+  Port = 22

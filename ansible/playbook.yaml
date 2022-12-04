@@ -1,0 +1,89 @@
+---
+- name: Install python3, docker, docker-compose
+  hosts: all
+  become: yes
+  gather_facts: False
+  tasks:
+    - name: Install python3 and docker
+      vars:
+        ansible_python_interpreter: /usr/bin/python
+      ansible.builtin.yum:
+        name:
+          - python3
+          - docker
+        update_cache: yes
+        state: present
+    - name: Install Docker-compose
+      ansible.builtin.get_url: 
+        url: https://github.com/docker/compose/releases/download/1.27.4/docker-compose-Linux-{{lookup('pipe', 'uname -m')}}
+        dest: /usr/local/bin/docker-compose
+        mode: +x
+    - name: Start docker daemon
+      ansible.builtin.systemd:
+        name: docker
+        state: started
+    - name: Install docker python module
+      ansible.builtin.pip:
+        name: 
+          - docker
+          - docker-compose
+    
+
+- name: Create new linux user
+  hosts: all
+  become: yes
+  tasks: 
+    - name: Create new linux user
+      ansible.builtin.user:
+        name: default
+        groups: adm,docker
+
+
+- name: Install runner 
+  hosts: all
+  become: yes
+  become_user: default
+  tasks: 
+    - name: Create runner directories
+      ansible.builtin.file:
+        path: /opt/gitlab-runner/{{item}}
+        state: directory
+        mode: 0777
+      loop:
+        - metadata
+        - builds
+        - cache
+    - name: Install gitlab-runner
+      ansible.builtin.get_url: 
+        url: https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.deb.sh
+        dest: /tmp/script.deb.sh
+        mode: +x
+    - name: Install gitlab-runner
+      ansible.builtin.command: /tmp/script.deb.sh
+    - name: Install fargate driver
+      ansible.builtin.get_url: 
+        url: https://gitlab-runner-custom-fargate-downloads.s3.amazonaws.com/latest/fargate-linux-amd64
+        dest: /opt/gitlab-runner/fargate
+        mode: +x
+    
+
+- name: Configure runner
+  hosts: all
+  become: yes
+  become_user: default
+  tasks: 
+    - name: Register runner
+      ansible.builtin.command: gitlab-runner register --url https://gitlab.com/ --registration-token {{gitlab_runner_token}} --name {{gitlab_runner_name}} --run-untagged --executor custom -n
+    - name: Copy config.toml
+      ansible.builtin.copy:
+        src: config.toml
+        dest: /etc/gitlab-runner/config.toml
+        mode: 0777
+    - name: Apply fargate.toml template
+      ansible.builtin.template:
+        src: fargate.toml.j2
+        dest: /etc/gitlab-runner/fargate.toml
+        mode: 0777
+
+
+  
