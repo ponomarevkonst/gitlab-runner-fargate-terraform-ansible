@@ -65,12 +65,12 @@ resource "aws_iam_role_policy_attachment" "gitlab-runner-role-policy-attach" {
 }
 
 
-data "aws_ami" "ubuntu" {
+data "aws_ami" "amazon_linux" {
   most_recent = true
 
   filter {
     name   = "name"
-    values = ["ubuntu/images/hvm-ssd/ubuntu-focal-20.04-amd64-server-*"]
+    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
   }
 
   filter {
@@ -78,7 +78,7 @@ data "aws_ami" "ubuntu" {
     values = ["hvm"]
   }
 
-  owners = ["099720109477"] // Canonical
+  owners = ["amazon"]
 }
 
 
@@ -98,7 +98,7 @@ resource "aws_key_pair" "gitlab-runner-key" {
 }
 
 resource "aws_instance" "gitlab-runner-server" {
-  ami           = data.aws_ami.ubuntu.id
+  ami           = data.aws_ami.amazon_linux.id
   instance_type = "t3.nano"
 
   subnet_id              = module.vpc.public_subnets[0]
